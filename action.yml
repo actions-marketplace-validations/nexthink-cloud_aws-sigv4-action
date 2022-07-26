@@ -1,22 +1,25 @@
 name: 'Lambda Function AWS Signature Version 4 Action'
+author: 'Nexthink'
+branding:
+  icon: 'check-square'  
+  color: 'blue'
 description: 'Facilitate AWS Signature Version 4 signing process to interact with AWS Lambda function URL using AWS_IAM Auth type.'
 inputs: 
-  aws-access-key-id:
-    description: 'Your AWS Key ID'
+  lambda-url:
+    description: 'The lambda function URL, should be https://<id>.lambda-url.<region>.on.aws/'
     required: true
-  aws-secret-access-key:
-    description: 'Your AWS Secret Key'
-    required: true
-  aws-session-token:
-    description: 'Your AWS Session Token (optionnal)'
+  body:
+    description: 'The body associated with the request (POST request)'
     required: false
+  method:
+    description: 'HTTP Method used to call the Lambda function'
+    required: false
+    default: GET
 runs:
   using: 'docker'
   image: 'Dockerfile'
   args:
-    - ${{ inputs.aws-access-key-id }}
-    - ${{ inputs.aws-secret-access-key }}
-    - ${{ inputs.aws-session-token }}
-    - ${{ inputs.region }}
-    - ${{ inputs.lambda-function-url }}
-    - ${{ inputs.body }}
+    - "-lambda-url=${{ inputs.lambda-url }}"
+    - "-body=${{ inputs.body }}"
+    - "-method=${{ inputs.method }}"
+  

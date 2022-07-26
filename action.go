@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"errors"
+	"flag"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -20,32 +21,36 @@ import (
 )
 
 const (
-	EnvAWSAccessKeyID     = "aws-access-key-id"
-	EnvAWSSecretAccessKey = "aws-secret-access-key"
-	EnvAWSSessionToken    = "aws-session-token"
-	EnvAWSRegion          = "region"
-	EnvLambdaFunctionURL  = "lambda-function-url"
-	EnvLambdaFunctionBody = "body"
+	EnvAWSAccessKeyID     = "AWS_ACCESS_KEY_ID"
+	EnvAWSSecretAccessKey = "AWS_SECRET_ACCESS_KEY"
+	EnvAWSSessionToken    = "AWS_SESSION_TOKEN"
+	EnvAWSRegion          = "AWS_REGION"
 )
 
 const awsRegionRegExp = `(us(-gov)?|ap|ca|cn|eu|sa)-(central|(north|south)?(east|west)?)-\d`
 
+var (
+	lambdaURL     = flag.String("lambda-url", "", "The lambda function URL, should be https://<id>.lambda-url.<region>.on.aws/something.")
+	requestBody   = flag.String("body", "", "The body associated with the request (POST request).")
+	requestMethod = flag.String("method", "GET", "HTTP Method used to call the Lambda function.")
+)
+
 func main() {
+	flag.Parse()
 	var credentials aws.Credentials
-	lambdaURL := os.Getenv(EnvLambdaFunctionURL)
-	if lambdaURL == "" {
-		fmt.Fprintf(os.Stderr, "%s env variable is required\n", EnvLambdaFunctionURL)
+
+	fmt.Println(*requestBody)
+	if *lambdaURL == "" {
+		fmt.Fprintln(os.Stderr, "lambda-url is required")
 		os.Exit(1)
 	}
-
-	body := os.Getenv(EnvLambdaFunctionBody)
 
 	awsRegion := os.Getenv(EnvAWSRegion)
 	var err error
 	if awsRegion == "" {
 		fmt.Fprintln(os.Stdout, "AWS region is not specified, try to guess from lambda URL")
 		// Try to extract region from function URL => https://<id>.lambda-url.<region>.on.aws/
-		awsRegion, err = guessAWSRegion(lambdaURL)
+		awsRegion, err = guessAWSRegion(*lambdaURL)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err.Error())
 			os.Exit(1)
@@ -71,7 +76,8 @@ func main() {
 		credentials = aws.Credentials{AccessKeyID: awsAccessKeyID, SecretAccessKey: awsSecretAccessKey, SessionToken: awsSessionToken}
 	}
 
-	req, bodyHash := buildRequest(lambdaURL, awsRegion, body)
+	req, bodyHash := buildRequest(*lambdaURL, *requestMethod, awsRegion, *requestBody)
+	req.Body = ioutil.NopCloser(strings.NewReader(*requestBody))
 
 	signer := v4.NewSigner()
 	signer.SignHTTP(context.Background(), credentials, req, bodyHash, "lambda", awsRegion, time.Now())
@@ -79,29 +85,35 @@ func main() {
 	client := &http.Client{Timeout: time.Duration(5) * time.Second}
 	resp, err := client.Do(req)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "HTTP error %s", err)
+		fmt.Fprintf(os.Stderr, "HTTP error %s\n", err)
 		os.Exit(1)
 	}
 	defer resp.Body.Close()
 	respBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "error trying to decode response body %s", err)
+		fmt.Fprintf(os.Stderr, "error trying to decode response body %s\n", err)
 	}
 
 	fmt.Printf("status code: %s, response: %s", resp.Status, string(respBody))
 }
 
-func buildRequest(lambdaURL, region, body string) (*http.Request, string) {
-	reader := strings.NewReader(body)
-	return buildRequestWithBodyReader(lambdaURL, region, reader)
+func buildRequest(lambdaURL, requestMethod, region, requestBody string) (*http.Request, string) {
+	reader := strings.NewReader(requestBody)
+	return buildRequestWithBodyReader(lambdaURL, requestMethod, region, reader)
 }
 
-func buildRequestWithBodyReader(lambdaURL, region string, body io.Reader) (*http.Request, string) {
-	req, _ := http.NewRequest(http.MethodPost, lambdaURL, body)
+func buildRequestWithBodyReader(lambdaURL, requestMethod, region string, requestBody io.Reader) (*http.Request, string) {
+
+	req, err := http.NewRequest(requestMethod, lambdaURL, requestBody)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error building the http request %s\n", err)
+		os.Exit(1)
+	}
 	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add("Accept", "*")
 
 	h := sha256.New()
-	_, _ = io.Copy(h, body)
+	_, _ = io.Copy(h, requestBody)
 	payloadHash := hex.EncodeToString(h.Sum(nil))
 
 	return req, payloadHash

@@ -13,7 +13,7 @@ import (
 var testCredentials = aws.Credentials{AccessKeyID: "AKID", SecretAccessKey: "SECRET", SessionToken: "SESSION"}
 
 func TestSignRequest(t *testing.T) {
-	req, body := buildRequest("https://some-id.lambda-url.eu-west-1.on.aws/", "eu-west-1", "{}")
+	req, body := buildRequest("https://some-id.lambda-url.eu-west-1.on.aws/", "POST", "eu-west-1", "{}")
 	signer := v4.NewSigner()
 	err := signer.SignHTTP(context.Background(), testCredentials, req, body, "lambda", "eu-west-1", time.Unix(0, 0))
 	if err != nil {
@@ -33,7 +33,7 @@ func TestSignRequest(t *testing.T) {
 
 func BenchmarkSignRequest(b *testing.B) {
 	signer := v4.NewSigner()
-	req, bodyHash := buildRequest("https://some-id.lambda-url.eu-west-1.on.aws/", "eu-west-1", "{}")
+	req, bodyHash := buildRequest("https://some-id.lambda-url.eu-west-1.on.aws/", "POST", "eu-west-1", "{}")
 	for i := 0; i < b.N; i++ {
 		signer.SignHTTP(context.Background(), testCredentials, req, bodyHash, "lambda", "eu-west-1", time.Now())
 	}
