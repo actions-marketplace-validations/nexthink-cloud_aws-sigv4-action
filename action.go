@@ -118,21 +118,27 @@ func buildRequestWithBodyReader(lambdaURL, requestMethod, region string, request
 		fmt.Fprintf(os.Stderr, "error building the http request %s\n", err)
 		os.Exit(1)
 	}
-	headers := strings.Split(*headerList, "\n")
-	for _, header := range headers {
-		key := strings.Trim(strings.Split(header, ":")[0], " ")
-		value := strings.Trim(strings.Split(header, ":")[1], " ")
-		req.Header.Add(key, value)
-	}
 
-	// req.Header.Add("Content-Type", "application/json")
-	// req.Header.Add("Accept", "*")
+	req = addHeaders(*headerList, req)
 
 	h := sha256.New()
 	_, _ = io.Copy(h, requestBody)
 	payloadHash := hex.EncodeToString(h.Sum(nil))
 
 	return req, payloadHash
+}
+
+func addHeaders(headerList string, req *http.Request) *http.Request {
+	headers := strings.Split(strings.TrimSpace(headerList), "\n")
+	for _, header := range headers {
+		headerArr := strings.Split(header, ":")
+		if len(headerArr) < 2 {
+			fmt.Fprintf(os.Stdout, "ignore invalid header %s\n", header)
+			break
+		}
+		req.Header.Add(strings.TrimSpace(headerArr[0]), strings.TrimSpace(headerArr[1]))
+	}
+	return req
 }
 
 func guessAWSRegion(lambdaURL string) (string, error) {

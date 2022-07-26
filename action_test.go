@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bytes"
 	"context"
+	"net/http"
 	"testing"
 	"time"
 
@@ -63,4 +65,33 @@ func TestMalformedLambdaURL(t *testing.T) {
 	region, err := guessAWSRegion(malformedURL)
 	assert.Empty(t, region)
 	assert.EqualError(t, err, "lambda function URL is malformed, impossible to guess AWS region")
+}
+
+func TestHeadersParsing(t *testing.T) {
+	tests := []struct {
+		headers         string
+		expectedHeaders http.Header
+	}{
+		{
+			`
+			Content-Type: application/json
+			User-Agent: GitHub-Hookshot/760256b
+			frifjlr:
+			fkeofewé
+		`,
+			http.Header{
+				"Content-Type": []string{"application/json"},
+				"User-Agent":   []string{"GitHub-Hookshot/760256b"},
+				"Frifjlr":      []string{""},
+			},
+		},
+	}
+
+	for _, test := range tests {
+		req, err := http.NewRequest(http.MethodGet, "https://example.com", bytes.NewReader([]byte{}))
+		assert.Nil(t, err, "no error expected here")
+		assert.NotNil(t, req, "request should have been created")
+		req = addHeaders(test.headers, req)
+		assert.Equal(t, test.expectedHeaders, req.Header, "headers should be identical")
+	}
 }
