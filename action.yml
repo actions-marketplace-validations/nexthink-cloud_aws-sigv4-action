@@ -1,5 +1,5 @@
-name: 'AWS Signature v4'
-description: 'Facilitate Signature Version 4 signing process'
+name: 'Lambda Function AWS Signature Version 4 Action'
+description: 'Facilitate AWS Signature Version 4 signing process to interact with AWS Lambda function URL using AWS_IAM Auth type.'
 inputs: 
   aws-access-key-id:
     description: 'Your AWS Key ID'
