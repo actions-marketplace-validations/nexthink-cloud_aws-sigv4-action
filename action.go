@@ -120,7 +120,9 @@ func buildRequestWithBodyReader(lambdaURL, requestMethod, region string, request
 	}
 	headers := strings.Split(*headerList, "\n")
 	for _, header := range headers {
-		req.Header.Add(strings.Split(header, ":")[0], strings.Split(header, ":")[1])
+		key := strings.Trim(strings.Split(header, ":")[0], " ")
+		value := strings.Trim(strings.Split(header, ":")[1], " ")
+		req.Header.Add(key, value)
 	}
 
 	// req.Header.Add("Content-Type", "application/json")
