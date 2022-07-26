@@ -1,0 +1,17 @@
+name: Build
+on: [push, pull_request]
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b # ratchet:actions/checkout@v3
+      - uses: actions/setup-go@84cbf8094393cdc5fe1fe1671ff2647332956b1a # ratchet:actions/setup-go@v3
+        with:
+          go-version: '1.16'
+          cache: true
+      - name: Build
+        run: |
+          go get -d -v
+          go test ./...
+          go build -v .

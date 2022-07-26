@@ -1,0 +1,22 @@
+name: 'AWS Signature v4'
+description: 'Facilitate Signature Version 4 signing process'
+inputs: 
+  aws-access-key-id:
+    description: 'Your AWS Key ID'
+    required: true
+  aws-secret-access-key:
+    description: 'Your AWS Secret Key'
+    required: true
+  aws-session-token:
+    description: 'Your AWS Session Token (optionnal)'
+    required: false
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+  args:
+    - ${{ inputs.aws-access-key-id }}
+    - ${{ inputs.aws-secret-access-key }}
+    - ${{ inputs.aws-session-token }}
+    - ${{ inputs.region }}
+    - ${{ inputs.lambda-function-url }}
+    - ${{ inputs.body }}
