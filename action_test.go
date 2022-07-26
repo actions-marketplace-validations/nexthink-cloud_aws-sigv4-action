@@ -78,11 +78,13 @@ func TestHeadersParsing(t *testing.T) {
 			User-Agent: GitHub-Hookshot/760256b
 			frifjlr:
 			fkeofewé
+			Accept: *
 		`,
 			http.Header{
 				"Content-Type": []string{"application/json"},
 				"User-Agent":   []string{"GitHub-Hookshot/760256b"},
 				"Frifjlr":      []string{""},
+				"Accept":       []string{"*"},
 			},
 		},
 	}

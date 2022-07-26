@@ -134,9 +134,9 @@ func addHeaders(headerList string, req *http.Request) *http.Request {
 		headerArr := strings.Split(header, ":")
 		if len(headerArr) < 2 {
 			fmt.Fprintf(os.Stdout, "ignore invalid header %s\n", header)
-			break
+		} else {
+			req.Header.Add(strings.TrimSpace(headerArr[0]), strings.TrimSpace(headerArr[1]))
 		}
-		req.Header.Add(strings.TrimSpace(headerArr[0]), strings.TrimSpace(headerArr[1]))
 	}
 	return req
 }

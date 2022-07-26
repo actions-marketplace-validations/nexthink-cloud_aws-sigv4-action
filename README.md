@@ -40,7 +40,11 @@ jobs:
       - name: Invoke Lambda function
         uses: nexthink-cloud/aws-sigv4-action@0.0.3
         with:
-          lambda-url: https://1234567890abcdefghijklmnopqrstuv.lambda-url.eu-west-1.on.aws/event
-          body: '{"Test": "result"}'
           method: POST
+          lambda-url: https://1234567890abcdefghijklmnopqrstuv.lambda-url.eu-west-1.on.aws/event
+          headers: |
+            Content-Type: application/json
+            User-Agent: GitHub-Hookshot/760256b
+            Accept: *
+          body: '{"Test": "result"}'
 ```
