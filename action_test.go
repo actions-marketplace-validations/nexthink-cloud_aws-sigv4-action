@@ -22,7 +22,7 @@ func TestSignRequest(t *testing.T) {
 		t.Fatalf("expect no error, got %v", err)
 	}
 	expectedDate := "19700101T000000Z"
-	expectedSig := "AWS4-HMAC-SHA256 Credential=AKID/19700101/eu-west-1/lambda/aws4_request, SignedHeaders=accept;content-length;content-type;host;x-amz-date;x-amz-security-token, Signature=cbd43e2f16f78d22f3360d8a6a987ed6f304c4316f48b7d9789e67f2e23e84bf"
+	expectedSig := "AWS4-HMAC-SHA256 Credential=AKID/19700101/eu-west-1/lambda/aws4_request, SignedHeaders=content-length;host;x-amz-date;x-amz-security-token, Signature=89d2a4858dac64a1699891c494929097f1c00e65e3bf8dbb99cc625bd7baad12"
 
 	q := req.Header
 	if e, a := expectedSig, q.Get("Authorization"); e != a {
