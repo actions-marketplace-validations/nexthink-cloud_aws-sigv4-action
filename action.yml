@@ -15,6 +15,13 @@ inputs:
     description: 'HTTP Method used to call the Lambda function'
     required: false
     default: GET
+outputs:
+  status:
+    description: "Response HTTP Status"
+  code:
+    description: "Response HTTP Code"
+  message:
+    description: "Response body"
 runs:
   using: 'docker'
   image: 'Dockerfile'

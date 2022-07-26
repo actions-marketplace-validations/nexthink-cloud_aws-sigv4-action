@@ -39,7 +39,6 @@ func main() {
 	flag.Parse()
 	var credentials aws.Credentials
 
-	fmt.Println(*requestBody)
 	if *lambdaURL == "" {
 		fmt.Fprintln(os.Stderr, "lambda-url is required")
 		os.Exit(1)
@@ -95,6 +94,14 @@ func main() {
 	}
 
 	fmt.Printf("status code: %s, response: %s", resp.Status, string(respBody))
+
+	// Github Action outputs
+	fmt.Printf(`::set-output name=status::%s`, resp.Status)
+	fmt.Print("\n")
+	fmt.Printf(`::set-output name=code::%d`, resp.StatusCode)
+	fmt.Print("\n")
+	fmt.Printf(`::set-output name=message::%s`, string(respBody))
+	fmt.Print("\n")
 }
 
 func buildRequest(lambdaURL, requestMethod, region, requestBody string) (*http.Request, string) {
