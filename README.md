@@ -47,4 +47,11 @@ jobs:
             User-Agent: GitHub-Hookshot/760256b
             Accept: *
           body: '{"Test": "result"}'
+      
+      - name: Check HTTP response code
+        if: ${{ steps.lambda-invoke.outputs.code }} != 200
+        uses: actions/github-script@v3
+        with:
+          script: |
+            core.setFailed('Bad HTTP Code: ${{ steps.lambda-invoke.outputs.code }}, Response: ${{ steps.lambda-invoke.outputs.message }}')
 ```
