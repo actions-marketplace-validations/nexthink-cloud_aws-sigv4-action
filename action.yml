@@ -15,6 +15,14 @@ inputs:
     description: 'HTTP Method used to call the Lambda function'
     required: false
     default: GET
+  # Headers list
+  # with:
+  #   headers: |
+  #     Content-Type: "application/json"
+  #     User-Agent: "GitHub-Hookshot/760256b"
+  headers:
+    description: 'A list of headers to add to the HTTP request'
+    required: false
 outputs:
   status:
     description: "Response HTTP Status"
@@ -29,4 +37,5 @@ runs:
     - "-lambda-url=${{ inputs.lambda-url }}"
     - "-body=${{ inputs.body }}"
     - "-method=${{ inputs.method }}"
+    - "-headers=${{ inputs.headers }}"
   

@@ -33,10 +33,12 @@ var (
 	lambdaURL     = flag.String("lambda-url", "", "The lambda function URL, should be https://<id>.lambda-url.<region>.on.aws/something.")
 	requestBody   = flag.String("body", "", "The body associated with the request (POST request).")
 	requestMethod = flag.String("method", "GET", "HTTP Method used to call the Lambda function.")
+	headerList    = flag.String("headers", "", "List of Headers")
 )
 
 func main() {
 	flag.Parse()
+
 	var credentials aws.Credentials
 
 	if *lambdaURL == "" {
@@ -116,8 +118,13 @@ func buildRequestWithBodyReader(lambdaURL, requestMethod, region string, request
 		fmt.Fprintf(os.Stderr, "error building the http request %s\n", err)
 		os.Exit(1)
 	}
-	req.Header.Add("Content-Type", "application/json")
-	req.Header.Add("Accept", "*")
+	headers := strings.Split(*headerList, "\n")
+	for _, header := range headers {
+		req.Header.Add(strings.Split(header, ":")[0], strings.Split(header, ":")[1])
+	}
+
+	// req.Header.Add("Content-Type", "application/json")
+	// req.Header.Add("Accept", "*")
 
 	h := sha256.New()
 	_, _ = io.Copy(h, requestBody)
