@@ -27,18 +27,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+        uses: actions/checkout@v3
         # Use of OIDC integration but can be anything documented here:
         # https://github.com/aws-actions/configure-aws-credentials
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@05b148adc31e091bafbaf404f745055d4d3bc9d2
+        uses: aws-actions/configure-aws-credentials@v1
         with:
           role-to-assume: ${{ secrets.my-role-to-assume }}
           aws-region: eu-west-1
         timeout-minutes: 1
 
       - name: Invoke Lambda function
-        uses: nexthink-cloud/aws-sigv4-action@0.0.3
+        uses: nexthink-cloud/aws-sigv4-action@0.0.4
         with:
           method: POST
           lambda-url: https://1234567890abcdefghijklmnopqrstuv.lambda-url.eu-west-1.on.aws/event
@@ -49,7 +49,7 @@ jobs:
           body: '{"Test": "result"}'
       
       - name: Check HTTP response code
-        if: ${{ steps.lambda-invoke.outputs.code }} != 200
+        if: ${{ steps.lambda-invoke.outputs.code != 200 }} 
         uses: actions/github-script@v3
         with:
           script: |
