@@ -32,7 +32,7 @@ outputs:
     description: "Response body"
 runs:
   using: 'docker'
-  image: 'ghcr.io/nexthink-cloud/aws-sigv4-action:v1'
+  image: 'ghcr.io/nexthink-cloud/aws-sigv4-action:v1.0.1'
   args:
     - "-lambda-url=${{ inputs.lambda-url }}"
     - "-body=${{ inputs.body }}"
