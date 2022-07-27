@@ -15,11 +15,11 @@ inputs:
     description: 'HTTP Method used to call the Lambda function'
     required: false
     default: GET
-  # Headers list
-  # with:
-  #   headers: |
-  #     Content-Type: "application/json"
-  #     User-Agent: "GitHub-Hookshot/760256b"
+  # Multiple headers can be defined using the following syntax:
+  #   with:
+  #     headers: |
+  #       Content-Type: application/json
+  #       User-Agent: GitHub-Hookshot/760256b
   headers:
     description: 'A list of headers to add to the HTTP request'
     required: false
