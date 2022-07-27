@@ -38,7 +38,7 @@ jobs:
         timeout-minutes: 1
 
       - name: Invoke Lambda function
-        uses: nexthink-cloud/aws-sigv4-action@0.0.4
+        uses: nexthink-cloud/aws-sigv4-action@v1
         with:
           method: POST
           lambda-url: https://1234567890abcdefghijklmnopqrstuv.lambda-url.eu-west-1.on.aws/event
